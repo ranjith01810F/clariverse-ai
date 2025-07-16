@@ -184,7 +184,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
         <h1 className="text-xl font-semibold text-purple-400">Topic Modeling</h1>
       </div>
 
-      {/* Navigation Items */}
+      {/* Navigation items */}
       <div className="p-6">
         <div className="space-y-2">
           {treeData.map(node => renderTreeNode(node))}
