@@ -15,7 +15,7 @@ export default function LoginPage() {
   };
 
   const handleSignIn = () => {
-    router.push("/home");
+    router.push("/ai-home");
   };
 
   return (
