@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { ChevronRight, Brain, Zap, Target, Users, ArrowRight, Star, Quote } from 'lucide-react';
+import { ChevronRight, Brain, Zap, Target, Users, ArrowRight, Quote } from 'lucide-react';
 import {Header} from '@/components/Header/Header';
 import * as THREE from 'three';
 import './globals.css';
 
 const HomePage: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<any>(null);
-  const rendererRef = useRef<any>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const animationFrameRef = useRef<number>(0);
 
   useEffect(() => {
@@ -367,7 +367,7 @@ const HomePage: React.FC = () => {
               {testimonials.map((testimonial, index) => (
                 <div key={index} className="bg-gray-800 rounded-lg p-8 relative">
                   <Quote className="w-8 h-8 text-pink-400 mb-4" />
-                  <p className="text-gray-200 text-lg mb-6 italic">"{testimonial.quote}"</p>
+                  <p className="text-gray-200 text-lg mb-6 italic">&ldquo;{testimonial.quote}&rdquo;</p>
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold">{testimonial.author.charAt(0)}</span>
@@ -390,7 +390,7 @@ const HomePage: React.FC = () => {
               Ready to Transform Your Business?
             </h2>
             <p className="text-xl text-pink-100 mb-8 max-w-2xl mx-auto">
-              Let's discuss how our AI solutions can drive real impact for your organization
+              Let&apos;s discuss how our AI solutions can drive real impact for your organization
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-white text-purple-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300">
@@ -414,7 +414,7 @@ const HomePage: React.FC = () => {
                   </div>
                   <span className="text-white text-lg ml-2 font-semibold">YaaraLabs</span>
                 </div>
-                <p className="text-gray-400">AI-driven solutions for tomorrow's challenges</p>
+                <p className="text-gray-400">AI-driven solutions for tomorrow&apos;s challenges</p>
               </div>
               <div>
                 <h4 className="text-white font-semibold mb-4">Solutions</h4>
