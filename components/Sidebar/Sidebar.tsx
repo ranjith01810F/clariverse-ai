@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Ticket, Mail, MessageCircle, Home, BarChart3, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface TreeNode {
   key: string;
@@ -16,6 +17,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
+  const router = useRouter();
   const [expandedKeys, setExpandedKeys] = useState<string[]>(['ticket', 'email', 'chat']);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
@@ -123,6 +125,40 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
       toggleExpanded(key);
     } else {
       setSelectedKeys([key]);
+      if (key === 'ticket-support-home') {
+        router.push('/ticket/support_ticket/home');
+      }
+      if (key === 'ticket-support-topic') {
+        router.push('/ticket/support_ticket/topic-analysis');
+      }
+      if (key === 'ticket-support-manual') {
+        router.push('/ticket/support_ticket/manual_analysis');
+      }
+      if (key === 'email-home') {
+        router.push('/email/home');
+      }
+      if (key === 'email-topic') {
+        router.push('/email/topic-analysis');
+      }
+      if (key === 'email-manual') {
+        router.push('/email/manual-analysis');
+      }
+      if (key === 'chat-home') {
+        router.push('/chat/home');
+      }
+      if (key === 'chat-topic') {
+        router.push('/chat/topic-analysis');
+      }
+      if (key === 'chat-manual') {
+        router.push('/chat/manual-analysis');
+      }
+      if (key === 'ticket-alert-home') {
+        router.push('/ticket/alert_ticket/home');
+      }
+      if (key === 'ticket-alert-topic') {
+        router.push('/ticket/alert_ticket/topic-analysis');
+      }
+      // You can add more routes for other keys here if needed
       console.log('selected', key);
     }
   };

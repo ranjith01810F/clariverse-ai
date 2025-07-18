@@ -209,7 +209,7 @@ const SupportHomePage = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Sidebar */}
+      {/* Sidebar Drawer */}
       <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
