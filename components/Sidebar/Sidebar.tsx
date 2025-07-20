@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Ticket, Mail, MessageCircle, Home, BarChart3, FileText } from 'lucide-react';
+import { ChevronDown, ChevronRight, Ticket, Mail, MessageCircle, Home, BarChart3, FileText, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface TreeNode {
@@ -14,9 +14,10 @@ interface TreeNode {
 
 interface SidebarProps {
   className?: string;
+  onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
+const Sidebar: React.FC<SidebarProps> = ({ className = '', onClose }) => {
   const router = useRouter();
   const [expandedKeys, setExpandedKeys] = useState<string[]>(['ticket', 'email', 'chat']);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
@@ -216,8 +217,13 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   return (
     <div className={`w-64 bg-gray-900 border-r border-gray-800 h-full overflow-y-auto ${className}`}>
       {/* Header Section */}
-      <div className="h-[72px] flex items-center justify-center border-b border-gray-800 pl-16">
-        <h1 className="text-xl font-semibold text-purple-400">Topic Modeling</h1>
+      <div className="h-[72px] flex items-center justify-between px-6 border-b border-gray-800">
+        <button 
+          onClick={onClose}
+          className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors duration-200"
+        >
+          <X className="w-6 h-6" />
+        </button>
       </div>
 
       {/* Navigation items */}

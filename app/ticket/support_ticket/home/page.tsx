@@ -1,12 +1,9 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from 'react';
-import { Menu, X, BarChart, PieChart, Cloud, ChevronDown, ChevronUp } from 'lucide-react';
-import Select, { SingleValue } from 'react-select';
-import { Dialog, Transition } from '@headlessui/react';
-import { Table, Button } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { BarChart, PieChart, Cloud, ChevronDown, ChevronUp, Search, Filter, TrendingUp, Users, FileText, Clock, Target, Layers } from 'lucide-react';
+import { Header } from '@/components/Header/Header';
 import Sidebar from '@/components/Sidebar/Sidebar';
-import type { ColumnsType } from 'antd/es/table';
 
 interface Subtopic {
   name: string;
@@ -24,23 +21,19 @@ const SupportHomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedViz, setSelectedViz] = useState('WordCloud');
   const [expandedStats, setExpandedStats] = useState(true);
-  const [selectedTopic, setSelectedTopic] = useState<SingleValue<{ value: string; label: string }>>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSubtopic, setSelectedSubtopic] = useState<Subtopic | null>(null);
-  const [sortOrder, setSortOrder] = useState<'descend' | 'ascend'>('descend');
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [dataSource, setDataSource] = useState<Topic[]>([]);
-  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [expandedRows, setExpandedRows] = useState<{[key: string]: boolean}>({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
 
   useEffect(() => {
-    // Initial mock data
+    // Enhanced mock data matching Streamlit functionality
     const initialData: Topic[] = [
       {
         name: "Customer Support",
@@ -50,6 +43,8 @@ const SupportHomePage = () => {
           { name: "Login Issues", frequency: 300 },
           { name: "Account Recovery", frequency: 200 },
           { name: "Password Reset", frequency: 150 },
+          { name: "Email Verification", frequency: 120 },
+          { name: "Two-Factor Authentication", frequency: 80 },
         ]
       },
       {
@@ -59,6 +54,9 @@ const SupportHomePage = () => {
         subtopics: [
           { name: "Bug Reports", frequency: 250 },
           { name: "System Crashes", frequency: 180 },
+          { name: "Performance Issues", frequency: 150 },
+          { name: "API Errors", frequency: 120 },
+          { name: "Browser Compatibility", frequency: 90 },
         ]
       },
       {
@@ -67,7 +65,9 @@ const SupportHomePage = () => {
         id: "3",
         subtopics: [
           { name: "Payment Processing", frequency: 200 },
-          { name: "Refund Requests", frequency: 100 },
+          { name: "Refund Requests", frequency: 180 },
+          { name: "Subscription Changes", frequency: 120 },
+          { name: "Invoice Issues", frequency: 100 },
         ]
       },
       {
@@ -76,21 +76,71 @@ const SupportHomePage = () => {
         id: "4",
         subtopics: [
           { name: "Feature Requests", frequency: 150 },
-          { name: "User Experience", frequency: 90 },
+          { name: "User Experience", frequency: 120 },
+          { name: "Design Suggestions", frequency: 80 },
+          { name: "Performance Feedback", frequency: 50 },
+        ]
+      },
+      {
+        name: "Integration Support",
+        frequency: 320,
+        id: "5",
+        subtopics: [
+          { name: "API Integration", frequency: 120 },
+          { name: "Webhook Issues", frequency: 80 },
+          { name: "Third-party Tools", frequency: 70 },
+          { name: "Database Connections", frequency: 50 },
         ]
       },
     ];
     setDataSource(initialData);
   }, []);
 
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Get all searchable topics
+  const getAllSearchItems = () => {
+    return dataSource.map(topic => ({
+      name: topic.name
+    }));
+  };
+
+  // Filter search items based on search term
+  const getFilteredSearchItems = () => {
+    const items = getAllSearchItems();
+    if (!searchTerm) return items;
+    
+    return items.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  // Handle search item selection
+  const handleSearchItemSelect = (topicName: string) => {
+    setSearchTerm(topicName);
+    setIsSearchFocused(false);
+  };
+
   const statsData = [
-    { metric: "Data Size", value: "10,000" },
-    { metric: "Total Document with Keyphrases", value: "8,500" },
-    { metric: "Keyphrases After Filtering", value: "6,200" },
-    { metric: "Unique Keyphrases after filtering", value: "1,200" },
-    { metric: "Last Run Date", value: "2025-07-15" },
-    { metric: "Dominant Topics", value: "50" },
-    { metric: "Subtopics", value: "250" },
+    { metric: "Data Size", value: "10,000", icon: <FileText className="w-5 h-5" />, color: "from-blue-500 to-blue-600" },
+    { metric: "Total Documents with Keyphrases", value: "8,500", icon: <Target className="w-5 h-5" />, color: "from-green-500 to-green-600" },
+    { metric: "Keyphrases After Filtering", value: "6,200", icon: <Filter className="w-5 h-5" />, color: "from-purple-500 to-purple-600" },
+    { metric: "Unique Keyphrases", value: "1,200", icon: <Layers className="w-5 h-5" />, color: "from-yellow-500 to-yellow-600" },
+    { metric: "Last Run Date", value: "2025-07-15", icon: <Clock className="w-5 h-5" />, color: "from-red-500 to-red-600" },
+    { metric: "Dominant Topics", value: "50", icon: <TrendingUp className="w-5 h-5" />, color: "from-indigo-500 to-indigo-600" },
+    { metric: "Subtopics", value: "250", icon: <Users className="w-5 h-5" />, color: "from-pink-500 to-pink-600" },
   ];
 
   const vizOptions = [
@@ -99,142 +149,98 @@ const SupportHomePage = () => {
     { value: 'BarPlot', label: 'Bar Plot', icon: <BarChart className="w-5 h-5" /> },
   ];
 
-  const topicOptions = [
-    { value: '', label: 'Choose an option' },
-    ...dataSource.map(topic => ({ value: topic.id, label: topic.name })),
-  ];
-
   const handleVizChange = (viz: string) => setSelectedViz(viz);
-  const handleTopicChange = (selected: SingleValue<{ value: string; label: string }>) => setSelectedTopic(selected);
-  const openSubtopicModal = (subtopic: Subtopic) => {
-    setSelectedSubtopic(subtopic);
-    setIsModalOpen(true);
-  };
-  const closeSubtopicModal = () => {
-    setIsModalOpen(false);
-    setSelectedSubtopic(null);
-  };
+  
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'descend' ? 'ascend' : 'descend');
+    setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
   };
 
   const toggleRowExpansion = (id: string) => {
-    setExpandedRowKeys((prev) =>
-      prev.includes(id) ? prev.filter((key) => key !== id) : [...prev, id]
-    );
+    setExpandedRows(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
   };
 
-  const subtopicColumns: ColumnsType<Subtopic> = [
-    {
-      title: 'Subtopic Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text) => <span className="text-gray-200">{text}</span>,
-    },
-    {
-      title: 'Frequency',
-      dataIndex: 'frequency',
-      key: 'frequency',
-      render: (text) => <span className="text-gray-200">{text}</span>,
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Button
-          onClick={() => openSubtopicModal(record)}
-          className="bg-gradient-to-r from-pink-500 to-purple-600 text-white border-none hover:from-pink-600 hover:to-purple-700"
-        >
-          View Details
-        </Button>
-      ),
-    },
-  ];
+  const SubtopicPill = ({ subtopic, onClick }: { subtopic: Subtopic; onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm px-3 py-1 rounded-full transition-all duration-300 transform hover:scale-105 mr-2 mb-2"
+    >
+      {subtopic.name} ({subtopic.frequency})
+    </button>
+  );
 
-  const columns: ColumnsType<Topic> = [
-    {
-      title: 'Topic Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text) => <span className="text-white font-semibold">{text}</span>,
-    },
-    {
-      title: 'Subtopics',
-      dataIndex: 'subtopics',
-      key: 'subtopics',
-      render: (subtopics: Subtopic[]) => (
-        <div className="flex flex-wrap gap-2">
-          {subtopics.slice(0, 5).map((subtopic, index) => (
-            <button
-              key={index}
-              onClick={() => openSubtopicModal(subtopic)}
-              className="bg-gray-600 text-white text-sm px-3 py-1 rounded-full hover:bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-300"
-            >
-              {subtopic.name} ({subtopic.frequency})
-            </button>
-          ))}
-          {subtopics.length > 5 && (
-            <span className="text-gray-400 text-sm italic">+ {subtopics.length - 5} more subtopics</span>
-          )}
+  const VisualizationPlaceholder = ({ type }: { type: string }) => (
+    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-12 mb-8 border border-gray-700">
+      <div className="h-96 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 text-purple-400">
+            {vizOptions.find(opt => opt.value === type)?.icon}
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-2">{type} Visualization</h3>
+          <p className="text-gray-400">Interactive {type} of dominant topics</p>
+          <div className="mt-4 text-sm text-gray-500">
+            Placeholder for {type} - Connect your data source to see real visualizations
+          </div>
         </div>
-      ),
-    },
-    {
-      title: 'Frequency',
-      dataIndex: 'frequency',
-      key: 'frequency',
-      sorter: (a, b) => a.frequency - b.frequency,
-      render: (text) => <span className="text-white">{text}</span>,
-    },
-    {
-      title: '',
-      key: 'expand',
-      render: (_, record) => (
-        <button
-          onClick={() => toggleRowExpansion(record.id)}
-          className="text-pink-400 hover:text-purple-400 transition-colors"
-        >
-          {expandedRowKeys.includes(record.id) ? (
-            <ChevronUp className="w-6 h-6" />
-          ) : (
-            <ChevronDown className="w-6 h-6" />
-          )}
-        </button>
-      ),
-    },
-  ];
+      </div>
+    </div>
+  );
 
-  const filteredTopics = selectedTopic ? dataSource.filter(t => t.id === selectedTopic.value) : dataSource;
+  // Filter and sort topics
+  const filteredTopics = dataSource
+    .filter(topic => {
+      if (searchTerm === '') return true;
+      
+      // Search in topic name
+      const matchesTopicName = topic.name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Search in subtopics
+      const matchesSubtopics = topic.subtopics.some(subtopic => 
+        subtopic.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      return matchesTopicName || matchesSubtopics;
+    })
+    .sort((a, b) => {
+      if (sortOrder === 'desc') {
+        return b.frequency - a.frequency;
+      }
+      return a.frequency - b.frequency;
+    });
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Sidebar Drawer */}
-      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out ${
+      {/* Header */}
+      <Header 
+        transparent={true} 
+        isLoggedIn={true}
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={toggleSidebar}
+      />
+
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <Sidebar />
+        <Sidebar onClose={closeSidebar} />
       </div>
 
       {/* Sidebar Overlay */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 z-40" onClick={closeSidebar} />
+        <div 
+          className="fixed inset-0 z-30"
+          onClick={closeSidebar}
+        />
       )}
 
-      {/* Hamburger Menu Button */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-6 left-6 z-50 p-2 bg-gray-800 bg-opacity-80 backdrop-blur-sm rounded-lg text-white hover:bg-gray-700 transition-colors duration-200"
-      >
-        {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
-
-      {/* Static Background */}
+      {/* Background */}
       <div 
         className="fixed inset-0 z-0" 
         style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a1a 100%)' }} 
       />
-
+      
       {/* Gradient Overlay */}
       <div
         className="fixed inset-0 z-10 pointer-events-none"
@@ -245,306 +251,283 @@ const SupportHomePage = () => {
       />
 
       {/* Main Content */}
-      <div className={`relative z-20 transition-all duration-300 ${isSidebarOpen ? 'filter blur-sm' : ''}`}>
-        <div className="bg-gray-900 bg-opacity-95 backdrop-blur-sm">
-          {/* Header Section */}
-          <section className="py-12 px-4">
-            <div className="max-w-6xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Support Tickets Dashboard</h1>
-              <p className="text-xl text-gray-300 max-w-3xl">Interactively analyze support ticket data with advanced visualizations and topic modeling insights.</p>
-              
-              {/* Only render Select when component is mounted */}
-              {mounted && (
-                <Select
-                  instanceId="topic-select-header"
-                  key="topic-select"
-                  options={topicOptions}
-                  value={selectedTopic}
-                  onChange={handleTopicChange}
-                  placeholder="Search & Select Dominant Topic"
-                  className="text-gray-900 mt-4"
-                  styles={{
-                    control: (baseStyles) => ({
-                      ...baseStyles,
-                      backgroundColor: '#1f2937',
-                      borderColor: '#374151',
-                      '&:hover': {
-                        borderColor: '#4b5563'
-                      }
-                    }),
-                    option: (baseStyles, state) => ({
-                      ...baseStyles,
-                      backgroundColor: state.isSelected ? '#6366f1' : state.isFocused ? '#4b5563' : '#1f2937',
-                      color: '#f3f4f6'
-                    }),
-                    singleValue: (baseStyles) => ({
-                      ...baseStyles,
-                      color: '#f3f4f6'
-                    }),
-                    menu: (baseStyles) => ({
-                      ...baseStyles,
-                      backgroundColor: '#1f2937'
-                    }),
-                    placeholder: (baseStyles) => ({
-                      ...baseStyles,
-                      color: '#9ca3af'
-                    })
-                  }}
-                />
-              )}
+      <div className={`relative z-20 pt-[72px] transition-all duration-300 ${isSidebarOpen ? 'filter blur-sm' : ''}`}>
+        <section className="py-12 px-4">
+          <div className="max-w-7xl mx-auto">
+            {/* Header Section */}
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                Support Tickets Dashboard
+              </h1>
+              <p className="text-xl text-gray-300 max-w-4xl mx-auto mb-8">
+                Interactively analyze support ticket data with advanced visualizations and topic modeling insights.
+              </p>
             </div>
-          </section>
 
-          {/* Basic Statistics Section */}
-          <section className="py-12 px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold text-white">Basic Statistics</h2>
+            {/* Basic Statistics Section */}
+            <div className="mb-12">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-3xl font-bold text-white">
+                  Basic Statistics
+                </h2>
                 <button
                   onClick={() => setExpandedStats(!expandedStats)}
-                  className="text-pink-400 hover:text-purple-400 transition-colors"
+                  className="flex items-center gap-2 text-gray-300 hover:text-purple-400 transition-colors duration-300"
                 >
-                  {expandedStats ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+                  {expandedStats ? (
+                    <>
+                      <ChevronUp className="w-6 h-6" />
+                      <span className="font-medium">Collapse</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-6 h-6" />
+                      <span className="font-medium">Expand</span>
+                    </>
+                  )}
                 </button>
               </div>
+              
               {expandedStats && (
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   {statsData.map((stat, index) => (
-                    <div key={index} className="group bg-gray-800 rounded-lg p-6 hover:bg-gray-700 transition-all duration-300 hover:scale-105">
-                      <p className="text-gray-300 text-sm">{stat.metric}</p>
-                      <p className="text-white text-xl font-semibold">{stat.value}</p>
+                    <div 
+                      key={index} 
+                      className="relative group overflow-hidden bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:scale-105"
+                    >
+                      {/* Gradient Background */}
+                      <div className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300 bg-gradient-to-br ${stat.color}`} />
+                      
+                      <div className="relative z-10">
+                        {/* Icon and Value */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color} bg-opacity-20`}>
+                            <div className="text-white">
+                              {stat.icon}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                              {stat.value}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Metric Name */}
+                        <h3 className="text-sm font-medium text-gray-300">
+                          {stat.metric}
+                        </h3>
+                      </div>
+
+                      {/* Hover Effect */}
+                      <div className="absolute inset-0 border border-purple-500/0 group-hover:border-purple-500/50 rounded-xl transition-all duration-300" />
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </section>
 
-          {/* Dominant Topics Section */}
-          <section className="py-12 px-4 bg-gradient-to-r from-gray-800 to-gray-900">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-white mb-8">Dominant Topics</h2>
-              
-              {/* Visualization Tabs */}
-              <div className="flex gap-2 mb-8">
-                {vizOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleVizChange(option.value)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      selectedViz === option.value 
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' 
-                        : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-                    }`}
-                  >
-                    {option.icon}
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Visualization Placeholder */}
-              <div className="bg-gray-800 rounded-lg p-8 mb-8 h-96 flex items-center justify-center">
-                <div className="text-center">
-                  {vizOptions.find(opt => opt.value === selectedViz)?.icon}
-                  <h3 className="text-xl font-bold text-white mb-2">{selectedViz} Visualization</h3>
-                  <p className="text-gray-300">Interactive {selectedViz} of dominant topics</p>
+            {/* Visualization Section */}
+            <div className="bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-2xl p-8 mb-12 border border-gray-700">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+                <h2 className="text-3xl font-bold text-white">Dominant Topics</h2>
+                <div className="flex flex-wrap gap-3">
+                  {vizOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleVizChange(option.value)}
+                      className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 ${
+                        selectedViz === option.value 
+                          ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg' 
+                          : 'bg-gray-700 bg-opacity-50 text-gray-200 hover:bg-gray-600 border border-gray-600'
+                      }`}
+                    >
+                      {option.icon}
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Topics Table */}
-              <div className="bg-gray-800 rounded-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="flex-1 mr-4">
-                    {mounted && (
-                      <Select
-                        instanceId="topic-select-table"
-                        key="topic-select-table"
-                        options={topicOptions}
-                        value={selectedTopic}
-                        onChange={handleTopicChange}
-                        placeholder="Search & Select Dominant Topic"
-                        className="text-gray-900"
-                        styles={{
-                          control: (base) => ({
-                            ...base,
-                            backgroundColor: '#2d3748',
-                            borderColor: '#4a5568',
-                            color: '#e2e8f0',
-                          }),
-                          singleValue: (base) => ({
-                            ...base,
-                            color: '#e2e8f0',
-                          }),
-                          menu: (base) => ({
-                            ...base,
-                            backgroundColor: '#2d3748',
-                            color: '#e2e8f0',
-                          }),
-                          option: (base, state) => ({
-                            ...base,
-                            backgroundColor: state.isSelected ? '#4a5568' : '#2d3748',
-                            color: '#e2e8f0',
-                            '&:hover': {
-                              backgroundColor: '#4a5568',
-                            },
-                          }),
-                        }}
+              {/* Visualization Content */}
+              <VisualizationPlaceholder type={selectedViz} />
+
+              {/* Topics Table Section */}
+              <div className="bg-gray-900 bg-opacity-70 rounded-xl p-6 border border-gray-700">
+                <h3 className="text-2xl font-bold text-white mb-6">Dominant Topics and Subtopics Overview</h3>
+                
+                {/* Controls */}
+                <div className="flex flex-col lg:flex-row gap-4 mb-6">
+                  <div className="flex-1">
+                    <div ref={searchRef} className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        placeholder="Search topics or subtopics..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setIsSearchFocused(true)}
+                        className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                       />
-                    )}
+                      
+                      {/* Search Dropdown */}
+                      {isSearchFocused && (
+                        <div className="absolute z-50 w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                          {getFilteredSearchItems().length > 0 ? (
+                            getFilteredSearchItems().map((item, index) => (
+                              <div
+                                key={index}
+                                onClick={() => handleSearchItemSelect(item.name)}
+                                className="px-4 py-3 hover:bg-gray-700 cursor-pointer transition-colors duration-200 group"
+                              >
+                                <span className="text-white group-hover:text-purple-400 transition-colors duration-200">
+                                  {item.name}
+                                </span>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-3 text-gray-400">
+                              No matches found
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <Button 
-                    onClick={toggleSortOrder}
-                    className="text-white bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-                  >
-                    Frequency {sortOrder === 'descend' ? '↓' : '↑'}
-                  </Button>
                 </div>
 
-                <Table
-                  columns={columns}
-                  dataSource={filteredTopics}
-                  rowKey="id"
-                  pagination={false}
-                  className="custom-table"
-                  expandable={{
-                    expandedRowKeys,
-                    onExpand: (expanded, record) => toggleRowExpansion(record.id),
-                    expandedRowRender: (record) => (
-                      <div className="bg-gray-700 rounded-lg p-6">
-                        <h3 className="text-xl font-semibold text-white mb-4">
-                          Subtopics under {record.name}
-                        </h3>
-                        <p className="text-gray-300 mb-2">
-                          No. of times {record.name} present: {record.frequency}
-                        </p>
-                        <p className="text-gray-300 mb-4">
-                          Total No of subtopics for {record.name}: {record.subtopics.length}
-                        </p>
-                        <Table
-                          columns={subtopicColumns}
-                          dataSource={record.subtopics}
-                          rowKey="name"
-                          pagination={false}
-                          className="custom-subtable"
-                        />
-                        <div className="flex gap-2 mb-4 mt-4">
-                          {vizOptions.map((option) => (
-                            <button
-                              key={option.value}
-                              onClick={() => handleVizChange(option.value)}
-                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                                selectedViz === option.value 
-                                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' 
-                                  : 'bg-gray-600 text-gray-200 hover:bg-gray-500'
-                              }`}
-                            >
-                              {option.icon}
-                              {option.label}
-                            </button>
-                          ))}
+                {/* Table Header */}
+                <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-800 rounded-t-lg border-b border-gray-700">
+                  <div className="col-span-3 font-semibold text-gray-200">Dominant Topic</div>
+                  <div className="col-span-6 font-semibold text-gray-200">Subtopics</div>
+                  <div 
+                    className="col-span-2 font-semibold text-gray-200 cursor-pointer group flex items-center justify-start gap-2 hover:text-purple-400 transition-colors duration-300"
+                    onClick={toggleSortOrder}
+                  >
+                    Frequency
+                    <span className="text-gray-400 group-hover:text-purple-400">
+                      {sortOrder === 'desc' ? '↓' : '↑'}
+                    </span>
+                  </div>
+                  <div className="col-span-1 font-semibold text-gray-200 text-center">Show</div>
+                </div>
+
+                {/* Table Body */}
+                <div className="divide-y divide-gray-700">
+                  {filteredTopics.map((topic, index) => (
+                    <div key={topic.id}>
+                      {/* Main Row */}
+                      <div className="grid grid-cols-12 gap-4 px-4 py-4 hover:bg-gray-800 hover:bg-opacity-50 transition-all duration-200">
+                        <div className="col-span-3 text-gray-300 font-medium">
+                          {topic.name}
                         </div>
-                        <div className="bg-gray-600 rounded-lg h-64 flex items-center justify-center">
-                          <div className="text-center">
-                            {vizOptions.find(opt => opt.value === selectedViz)?.icon}
-                            <p className="text-gray-300">Subtopics {selectedViz}</p>
+                        
+                        <div className="col-span-6">
+                          <div className="flex flex-wrap gap-2">
+                            {topic.subtopics.slice(0, 5).map((subtopic, idx) => (
+                              <SubtopicPill 
+                                key={idx} 
+                                subtopic={subtopic} 
+                                onClick={() => {/* Handle subtopic click */}}
+                              />
+                            ))}
+                            {topic.subtopics.length > 5 && (
+                              <span className="text-gray-500 text-sm italic self-center">
+                                + {topic.subtopics.length - 5} more subtopics
+                              </span>
+                            )}
                           </div>
                         </div>
+                        
+                        <div className="col-span-2 text-gray-300 font-semibold">
+                          {topic.frequency}
+                        </div>
+                        
+                        <div className="col-span-1 text-center">
+                          <button
+                            onClick={() => toggleRowExpansion(topic.id)}
+                            className="text-gray-400 hover:text-purple-400 transition-colors transform hover:scale-110"
+                          >
+                            {expandedRows[topic.id] ? (
+                              <ChevronUp className="w-5 h-5" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
-                    ),
-                  }}
-                />
+
+                      {/* Expanded Row Content */}
+                      {expandedRows[topic.id] && (
+                        <div className="bg-gray-800 bg-opacity-30 p-6 border-l-4 border-purple-500">
+                          <div className="mb-6">
+                            <h4 className="text-xl font-bold text-white mb-4">
+                              Subtopics Analysis for {topic.name}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                              <div className="bg-gray-700 rounded-lg p-4">
+                                <div className="text-gray-400 text-sm">Total Frequency</div>
+                                <div className="text-white text-2xl font-bold">{topic.frequency}</div>
+                              </div>
+                              <div className="bg-gray-700 rounded-lg p-4">
+                                <div className="text-gray-400 text-sm">Total Subtopics</div>
+                                <div className="text-white text-2xl font-bold">{topic.subtopics.length}</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Subtopics Visualization Selection */}
+                          <div className="mb-6">
+                            <h5 className="text-lg font-semibold text-gray-200 mb-4">
+                              Choose visualization type for {topic.name} subtopics:
+                            </h5>
+                            <div className="flex gap-3 mb-4">
+                              {vizOptions.map((option) => (
+                                <button
+                                  key={`${topic.id}-${option.value}`}
+                                  className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-purple-600 text-gray-200 rounded-lg transition-all duration-300"
+                                  onClick={() => {/* Handle visualization selection */}}
+                                >
+                                  {option.icon}
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                            <VisualizationPlaceholder type="WordCloud" />
+                          </div>
+
+                          {/* Subtopics Detailed Table */}
+                          <div className="overflow-x-auto">
+                            <div className="bg-gray-900 rounded-lg">
+                              <div className="grid grid-cols-2 gap-4 px-4 py-3 bg-gray-800 rounded-t-lg border-b border-gray-700">
+                                <div className="font-semibold text-gray-200 text-center">Subtopic Name</div>
+                                <div className="font-semibold text-gray-200 text-center">Frequency</div>
+                              </div>
+                              {topic.subtopics.map((subtopic, idx) => (
+                                <div key={idx} className="grid grid-cols-2 gap-4 px-4 py-3 border-b border-gray-800 hover:bg-gray-800 hover:bg-opacity-50 transition-all">
+                                  <div className="text-gray-300 text-center">{subtopic.name}</div>
+                                  <div className="text-gray-300 text-center">{subtopic.frequency}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {filteredTopics.length === 0 && (
+                  <div className="text-center py-12 text-gray-400">
+                    <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg">No topics found matching your search criteria.</p>
+                  </div>
+                )}
               </div>
             </div>
-          </section>
-        </div>
-
-        {/* Subtopic Details Modal */}
-        <Transition appear show={isModalOpen} as={React.Fragment}>
-          <Dialog as="div" className="relative z-50" onClose={closeSubtopicModal}>
-            <Transition.Child
-              as={React.Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-50" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4">
-                <Transition.Child
-                  as={React.Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-md bg-gray-800 rounded-lg p-6">
-                    <Dialog.Title className="text-xl font-bold text-white mb-4">
-                      Subtopic Details
-                    </Dialog.Title>
-                    {selectedSubtopic && (
-                      <div className="space-y-4">
-                        <p className="text-gray-300"><strong>Name:</strong> {selectedSubtopic.name}</p>
-                        <p className="text-gray-300"><strong>Frequency:</strong> {selectedSubtopic.frequency}</p>
-                        <p className="text-gray-300"><strong>Description:</strong> Placeholder description for {selectedSubtopic.name}.</p>
-                      </div>
-                    )}
-                    <button
-                      onClick={closeSubtopicModal}
-                      className="mt-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all"
-                    >
-                      Close
-                    </button>
-                  </Dialog.Panel>
-                </Transition.Child>
-              </div>
-            </div>
-          </Dialog>
-        </Transition>
+          </div>
+        </section>
       </div>
-
-      {/* Custom Table Styles */}
-      <style jsx>{`
-        .custom-table :global(.ant-table) {
-          background: #2d3748 !important;
-        }
-        .custom-table :global(.ant-table-thead > tr > th) {
-          background: #4a5568 !important;
-          color: #e2e8f0 !important;
-          border-bottom: 1px solid #4a5568 !important;
-        }
-        .custom-table :global(.ant-table-tbody > tr > td) {
-          background: #2d3748 !important;
-          color: #e2e8f0 !important;
-          border-bottom: 1px solid #4a5568 !important;
-        }
-        .custom-table :global(.ant-table-tbody > tr:hover > td) {
-          background: #4a5568 !important;
-        }
-        .custom-subtable :global(.ant-table) {
-          background: #374151 !important;
-        }
-        .custom-subtable :global(.ant-table-thead > tr > th) {
-          background: #4a5568 !important;
-          color: #e2e8f0 !important;
-          border-bottom: 1px solid #4a5568 !important;
-        }
-        .custom-subtable :global(.ant-table-tbody > tr > td) {
-          background: #374151 !important;
-          color: #e2e8f0 !important;
-          border-bottom: 1px solid #4a5568 !important;
-        }
-        .custom-subtable :global(.ant-table-tbody > tr:hover > td) {
-          background: #4a5568 !important;
-        }
-      `}</style>
     </div>
   );
 };

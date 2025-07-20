@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, Brain, Database, Settings, Users, ArrowRight, Menu, X, Mail, MessageSquare, Ticket, TrendingUp, Shield, Zap } from 'lucide-react';
 import Sidebar from '@/components/Sidebar/Sidebar';
+import { Header } from '@/components/Header/Header';
 
 const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -71,8 +72,16 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Header */}
+      <Header 
+        transparent={true} 
+        isLoggedIn={true} 
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={toggleSidebar}
+      />
+
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out ${
+      <div className={`fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <Sidebar />
@@ -81,22 +90,12 @@ const HomePage = () => {
       {/* Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-30"
           onClick={closeSidebar}
         />
       )}
 
-      {/* Hamburger Menu Button */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed top-6 left-6 z-50 p-2 bg-gray-800 bg-opacity-80 backdrop-blur-sm rounded-lg text-white hover:bg-gray-700 transition-colors duration-200"
-      >
-        {isSidebarOpen ? (
-          <X className="w-6 h-6" />
-        ) : (
-          <Menu className="w-6 h-6" />
-        )}
-      </button>
+      {/* Remove old hamburger button */}
 
       {/* Static Background with Same Theme */}
       <div 
@@ -116,7 +115,7 @@ const HomePage = () => {
       />
 
       {/* Main Content with Blur Effect */}
-      <div className={`relative z-20 transition-all duration-300 ${isSidebarOpen ? 'filter blur-sm' : ''}`}>
+      <div className={`relative z-20 pt-[72px] transition-all duration-300 ${isSidebarOpen ? 'filter blur-sm' : ''}`}>
         {/* Hero Section */}
         <section className="min-h-screen flex items-center justify-center px-4">
           <div className="text-center max-w-6xl mx-auto">

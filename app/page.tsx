@@ -210,8 +210,8 @@ const HomePage: React.FC = () => {
         />
       </div>
 
-      {/* Navigation Bar */}
-      <Header />
+      {/* Navigation Bar - Public version without sidebar */}
+      <Header transparent={true} isLoggedIn={false} />
 
       {/* Hero Section */}
       <section className="relative z-30 min-h-screen flex items-center justify-center px-4">
