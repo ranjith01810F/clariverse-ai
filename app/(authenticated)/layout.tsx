@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Header } from '@/components/Header/Header';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function AuthenticatedLayout({
   children,
@@ -10,7 +10,6 @@ export default function AuthenticatedLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
 
   // Check if user is not logged in, redirect to login
   React.useEffect(() => {
@@ -29,4 +28,4 @@ export default function AuthenticatedLayout({
       </div>
     </div>
   );
-} 
+}

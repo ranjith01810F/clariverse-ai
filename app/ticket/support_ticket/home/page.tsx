@@ -21,7 +21,6 @@ const SupportHomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedViz, setSelectedViz] = useState('WordCloud');
   const [expandedStats, setExpandedStats] = useState(true);
-  const [selectedTopic, setSelectedTopic] = useState('');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [dataSource, setDataSource] = useState<Topic[]>([]);
   const [expandedRows, setExpandedRows] = useState<{[key: string]: boolean}>({});
@@ -290,9 +289,9 @@ const SupportHomePage = () => {
               
               {expandedStats && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  {statsData.map((stat, index) => (
+                  {statsData.map((stat, statIndex) => (
                     <div 
-                      key={index} 
+                      key={statIndex} 
                       className="relative group overflow-hidden bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:scale-105"
                     >
                       {/* Gradient Background */}
@@ -374,9 +373,9 @@ const SupportHomePage = () => {
                       {isSearchFocused && (
                         <div className="absolute z-50 w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-96 overflow-y-auto">
                           {getFilteredSearchItems().length > 0 ? (
-                            getFilteredSearchItems().map((item, index) => (
+                            getFilteredSearchItems().map((item, itemIndex) => (
                               <div
-                                key={index}
+                                key={itemIndex}
                                 onClick={() => handleSearchItemSelect(item.name)}
                                 className="px-4 py-3 hover:bg-gray-700 cursor-pointer transition-colors duration-200 group"
                               >
@@ -414,7 +413,7 @@ const SupportHomePage = () => {
 
                 {/* Table Body */}
                 <div className="divide-y divide-gray-700">
-                  {filteredTopics.map((topic, index) => (
+                  {filteredTopics.map((topic) => (
                     <div key={topic.id}>
                       {/* Main Row */}
                       <div className="grid grid-cols-12 gap-4 px-4 py-4 hover:bg-gray-800 hover:bg-opacity-50 transition-all duration-200">
@@ -424,11 +423,14 @@ const SupportHomePage = () => {
                         
                         <div className="col-span-6">
                           <div className="flex flex-wrap gap-2">
-                            {topic.subtopics.slice(0, 5).map((subtopic, idx) => (
+                            {topic.subtopics.slice(0, 5).map((subtopic, subtopicIdx) => (
                               <SubtopicPill 
-                                key={idx} 
+                                key={subtopicIdx} 
                                 subtopic={subtopic} 
-                                onClick={() => {/* Handle subtopic click */}}
+                                onClick={() => {
+                                  // Handle subtopic click - for now just a placeholder
+                                  console.log(`Clicked subtopic: ${subtopic.name}`);
+                                }}
                               />
                             ))}
                             {topic.subtopics.length > 5 && (
@@ -486,7 +488,10 @@ const SupportHomePage = () => {
                                 <button
                                   key={`${topic.id}-${option.value}`}
                                   className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-purple-600 text-gray-200 rounded-lg transition-all duration-300"
-                                  onClick={() => {/* Handle visualization selection */}}
+                                  onClick={() => {
+                                    // Handle visualization selection - for now just a placeholder
+                                    console.log(`Selected ${option.value} for ${topic.name}`);
+                                  }}
                                 >
                                   {option.icon}
                                   {option.label}
@@ -503,8 +508,8 @@ const SupportHomePage = () => {
                                 <div className="font-semibold text-gray-200 text-center">Subtopic Name</div>
                                 <div className="font-semibold text-gray-200 text-center">Frequency</div>
                               </div>
-                              {topic.subtopics.map((subtopic, idx) => (
-                                <div key={idx} className="grid grid-cols-2 gap-4 px-4 py-3 border-b border-gray-800 hover:bg-gray-800 hover:bg-opacity-50 transition-all">
+                              {topic.subtopics.map((subtopic, subtopicDetailIdx) => (
+                                <div key={subtopicDetailIdx} className="grid grid-cols-2 gap-4 px-4 py-3 border-b border-gray-800 hover:bg-gray-800 hover:bg-opacity-50 transition-all">
                                   <div className="text-gray-300 text-center">{subtopic.name}</div>
                                   <div className="text-gray-300 text-center">{subtopic.frequency}</div>
                                 </div>

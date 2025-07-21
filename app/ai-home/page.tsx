@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChevronRight, Brain, Database, Settings, Users, ArrowRight, Menu, X, Mail, MessageSquare, Ticket, TrendingUp, Shield, Zap } from 'lucide-react';
+import { ChevronRight, Brain, Database, Settings, Users, ArrowRight, Mail, MessageSquare, Ticket, TrendingUp, Shield, Zap } from 'lucide-react';
 import Sidebar from '@/components/Sidebar/Sidebar';
 import { Header } from '@/components/Header/Header';
 

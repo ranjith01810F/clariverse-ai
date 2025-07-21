@@ -1,9 +1,21 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, X, Filter, Menu, Search } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, X, Search } from 'lucide-react';
 import { Header } from '@/components/Header/Header';
 import Sidebar from '@/components/Sidebar/Sidebar';
+
+type Ticket = {
+  _id: string;
+  ticket_number: string;
+  title: string;
+  description: string;
+  mapped_dominant_topic_id: string;
+  mapped_dominant_topic_name: string;
+  mapped_subtopic_id?: string;
+  mapped_subtopic_name: string;
+  // Add any other fields as needed
+};
 
 const TopicAnalysis: React.FC = () => {
   const [selectedDominantTopics, setSelectedDominantTopics] = useState<string[]>([]);
@@ -11,7 +23,7 @@ const TopicAnalysis: React.FC = () => {
   const [dominantDropdownOpen, setDominantDropdownOpen] = useState(false);
   const [subtopicDropdownOpen, setSubtopicDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
-  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const RECORDS_PER_PAGE = 10;
 
@@ -141,7 +153,7 @@ const TopicAnalysis: React.FC = () => {
     });
   };
 
-  const handleTicketClick = (ticket: any) => {
+  const handleTicketClick = (ticket: Ticket) => {
     setSelectedTicket(ticket);
   };
 
