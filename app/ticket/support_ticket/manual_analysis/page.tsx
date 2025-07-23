@@ -66,7 +66,7 @@ const ManualAnalysisPage = () => {
       await new Promise(resolve => setTimeout(resolve, 500));
       setVersions([1, 2, 3]);
       setSelectedVersion(1);
-    } catch (_) {
+    } catch (_error) {
       showNotification('error', 'Failed to fetch versions');
     } finally {
       setIsLoading(false);
@@ -89,7 +89,7 @@ const ManualAnalysisPage = () => {
           { _id: "21", name: "Card Declined", keywords: ["card", "declined", "payment"], llm_dominant_topic_id: "21" },
           { _id: "22", name: "Refund Request", keywords: ["refund", "return"], llm_dominant_topic_id: "22" },
         ]);
-      } catch (_) {
+      } catch (_error) {
         showNotification('error', 'Failed to fetch topics and subtopics');
       } finally {
         setIsLoading(false);
@@ -150,7 +150,7 @@ const ManualAnalysisPage = () => {
       setSelectedTopic2(null);
       setMergeTopicCustomName('');
       setUseCustomTopicName(false);
-    } catch (_) {
+    } catch (_error) {
       showNotification('error', 'Failed to merge topics');
     } finally {
       setIsLoading(false);
@@ -169,7 +169,7 @@ const ManualAnalysisPage = () => {
       setSelectedDominantTopic(null);
       setMergeSubtopicCustomName('');
       setUseCustomSubtopicName(false);
-    } catch (_) {
+    } catch (_error) {
       showNotification('error', 'Failed to merge subtopics');
     } finally {
       setIsLoading(false);
@@ -185,7 +185,7 @@ const ManualAnalysisPage = () => {
       showNotification('success', 'Subtopic moved successfully');
       setMoveSubtopic(null);
       setMoveDominantTopic(null);
-    } catch (_) {
+    } catch (_error) {
       showNotification('error', 'Failed to move subtopic');
     } finally {
       setIsLoading(false);
@@ -205,7 +205,7 @@ const ManualAnalysisPage = () => {
       setMoveDominantTopic(null);
       setNewSubtopicName('');
       setCreateNewSubtopic(false);
-    } catch (_) {
+    } catch (_error) {
       showNotification('error', 'Failed to move keywords');
     } finally {
       setIsLoading(false);
@@ -222,7 +222,7 @@ const ManualAnalysisPage = () => {
         showNotification('success', 'Keywords deleted successfully');
         setDeleteKeywordsSubtopic(null);
         setDeleteKeywords([]);
-      } catch (_) {
+      } catch (_error) {
         showNotification('error', 'Failed to delete keywords');
       } finally {
         setIsLoading(false);
@@ -376,7 +376,7 @@ const ManualAnalysisPage = () => {
                                 type="text"
                                 placeholder="Enter new name"
                                 className="bg-gray-900 text-white rounded-lg px-3 py-1 border border-gray-700 focus:border-pink-400 focus-outline-none w-full max-w-xs"
-                                onChange={_ => {
+                                onChange={(_e) => {
                                   // Mock rename logic
                                 }}
                                 disabled={isLoading}
@@ -423,7 +423,7 @@ const ManualAnalysisPage = () => {
                                                 type="text"
                                                 placeholder="Enter new name"
                                                 className="bg-gray-900 text-white rounded-lg px-3 py-1 border border-gray-700 focus:border-pink-400 focus:outline-none w-full max-w-xs"
-                                                onChange={_ => {
+                                                onChange={(_e) => {
                                                   // Mock rename logic
                                                 }}
                                                 disabled={isLoading}
